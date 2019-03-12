@@ -1,7 +1,6 @@
 package app.tomlai.com.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -32,8 +31,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //若Bluetooth狀態為關閉則將它開啟
                 if (!mBluetoothAdapter.isEnabled()) {
-                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    startActivityForResult(enableBtIntent, 2);
+                    //Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    //startActivityForResult(enableBtIntent, 2);
+                    mBluetoothAdapter.enable();
                 }
             }
         });
