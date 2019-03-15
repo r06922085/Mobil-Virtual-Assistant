@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.speech.RecognitionListener;
@@ -17,6 +18,11 @@ import android.speech.tts.TextToSpeech.OnInitListener;
 import android.util.Log;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -26,6 +32,8 @@ public class MainActivity extends Activity {
     private SpeechRecognizer sr;
     private static final String TAG = "MyStt3Activity";
     private TextView mText;//displaying the recognized words
+    private String Command;
+    private String ToDo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,11 +94,11 @@ public class MainActivity extends Activity {
                 Log.d(TAG, "result " + data.get(i));
                 str += data.get(i);
             }
-            mText.setText(""+data.get(0));
-            tts.speak( ""+data.get(0), TextToSpeech.QUEUE_FLUSH, null );
+            //mText.setText(""+data.get(0));
+            //tts.speak( ""+data.get(0), TextToSpeech.QUEUE_FLUSH, null );
 
-            String command = ""+data.get(0);
-            do_command(command);
+            Command = ""+data.get(0);
+            ToDo();
 
             startActivity(new Intent(MainActivity.this, ListeningActivity.class));
 
@@ -104,17 +112,18 @@ public class MainActivity extends Activity {
             Log.d(TAG, "onEvent " + eventType);
         }
     }
-    protected  void do_command(String command){
-        //Wifi(1);
-        //mText.setText("666"+command+"666");
-        if(command.equals("打開Wi-Fi")) Wifi(1);
-        else if(command.equals("關閉Wi-Fi")) Wifi(0);
-        else if(command.equals("打開藍牙")) BT(1);
-        else if(command.equals("關閉藍牙"))BT(0);
-        else if(command.equals("螢幕調亮")) Screen(1);
-        else if(command.equals("螢幕調暗")) Screen(0);
-        else if(command.equals("音量調大")) Volumn(1);
-        else if(command.equals("音量調小")) Volumn(0);
+    protected void ToDo(){
+        new Task().execute();
+    }
+    protected  void do_command(){
+        if(ToDo.equals("打開wifi")) Wifi(1);
+        else if(ToDo.equals("關閉wifi")) Wifi(0);
+        else if(ToDo.equals("打開藍芽")) BT(1);
+        else if(ToDo.equals("關閉藍芽"))BT(0);
+        else if(ToDo.equals("調大銀幕")) Screen(1);
+        else if(ToDo.equals("調小銀幕")) Screen(0);
+        else if(ToDo.equals("調大音量")) Volumn(1);
+        else if(ToDo.equals("調小音量")) Volumn(0);
     }
     protected  void Wifi(int type){
         Log.d(TAG, "hi " + type);
@@ -206,6 +215,83 @@ public class MainActivity extends Activity {
                     }
                 }}
             );
+        }
+    }
+
+    class Task extends AsyncTask<Void,Void,String> {
+
+        @Override
+        public void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        public String doInBackground(Void... arg0) {
+
+            URL url = null;
+            BufferedReader reader = null;
+            StringBuilder stringBuilder;
+
+            try
+            {
+                // create the HttpURLConnection
+                url = new URL("http://140.112.31.89/line/main.php?Str="+Command);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+                // 使用甚麼方法做連線
+                connection.setRequestMethod("GET");
+
+                // 是否添加參數(ex : json...等)
+                //connection.setDoOutput(true);
+
+                // 設定TimeOut時間
+                connection.setReadTimeout(15*1000);
+                connection.connect();
+
+                // 伺服器回來的參數
+                reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                stringBuilder = new StringBuilder();
+
+                String line = null;
+                while ((line = reader.readLine()) != null)
+                {
+                    stringBuilder.append(line + "\n");
+                }
+                return stringBuilder.toString();
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            finally
+            {
+                // close the reader; this can throw an exception too, so
+                // wrap it in another try/catch block.
+                if (reader != null)
+                {
+                    try
+                    {
+                        reader.close();
+                    }
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        public void onPostExecute(String result) {
+            super.onPostExecute(result);
+            if(!"".equals(result) || null != result){
+                ToDo = result.replaceAll("\r|\n", "");;
+                do_command();
+                mText.setText("已經"+ToDo);
+                tts.speak( "已經"+ToDo, TextToSpeech.QUEUE_FLUSH, null );
+            }
         }
     }
 }
