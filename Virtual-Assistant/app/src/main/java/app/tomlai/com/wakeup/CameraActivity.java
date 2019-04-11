@@ -36,7 +36,7 @@ import static android.Manifest.permission.VIBRATE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 /**
- * The ListeningActivity implements the Pocket-Sphinx's RecognitionListener and moves on the
+ * The CameraActivity implements the Pocket-Sphinx's RecognitionListener and moves on the
  * MainActivity, only after the wake word has been recognized.
  * <p>
  * While the Wake Word get read from a resource file, to change it, a new wake word would also need
@@ -46,9 +46,9 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
  *
  * @author <a mailto="wolf@wolfpaulus.com">Wolf Paulus</a>
  */
-public class ListeningActivity extends AppCompatActivity implements RecognitionListener , SurfaceHolder.Callback{
+public class CameraActivity extends AppCompatActivity implements RecognitionListener , SurfaceHolder.Callback{
     //WakeWord
-    private static final String LOG_TAG = ListeningActivity.class.getName();
+    private static final String LOG_TAG = CameraActivity.class.getName();
     private static final String WAKEWORD_SEARCH = "WAKEWORD_SEARCH";
     private static final int PERMISSIONS_REQUEST_CODE = 5;
     private static int sensibility = 10;
@@ -64,7 +64,7 @@ public class ListeningActivity extends AppCompatActivity implements RecognitionL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_listening);
+        setContentView(R.layout.activity_camera);
 
         //WakeWord
         mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -85,14 +85,14 @@ public class ListeningActivity extends AppCompatActivity implements RecognitionL
                 sensibility = seekBar.getProgress();
                 Log.i(LOG_TAG, "Changing Recognition Threshold to " + sensibility);
                 threshold.setText(String.valueOf(sensibility));
-                mRecognizer.removeListener(ListeningActivity.this);
+                mRecognizer.removeListener(CameraActivity.this);
                 mRecognizer.stop();
                 mRecognizer.shutdown();
                 setup();
             }
         });
 
-        ActivityCompat.requestPermissions(ListeningActivity.this, new String[]{RECORD_AUDIO, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE, VIBRATE}, PERMISSIONS_REQUEST_CODE);
+        ActivityCompat.requestPermissions(CameraActivity.this, new String[]{RECORD_AUDIO, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE, VIBRATE}, PERMISSIONS_REQUEST_CODE);
 
         //Camera
         getWindow().setFormat(PixelFormat.UNKNOWN);
@@ -227,7 +227,7 @@ public class ListeningActivity extends AppCompatActivity implements RecognitionL
      */
     private void setup() {
         try {
-            final Assets assets = new Assets(ListeningActivity.this);
+            final Assets assets = new Assets(CameraActivity.this);
             final File assetDir = assets.syncAssets();
             mRecognizer = SpeechRecognizerSetup.defaultSetup()
                     .setAcousticModel(new File(assetDir, "models/en-us-ptm"))
@@ -274,7 +274,7 @@ public class ListeningActivity extends AppCompatActivity implements RecognitionL
                 mVibrator.vibrate(100);
 
             }
-            mRecognizer.removeListener(ListeningActivity.this);
+            mRecognizer.removeListener(CameraActivity.this);
             mRecognizer.stop();
             mRecognizer.shutdown();
             setup();
