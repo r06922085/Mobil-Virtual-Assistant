@@ -3,19 +3,19 @@
 ## What is this?
 It is a vitual asssitant application that work on android device which can help you do some simple tasks such as below:
 
-1.打開/關掉wifi
+1.打開/關掉wifi (turn on/off wifi)
 
-2.打開/關掉藍芽
+2.打開/關掉藍芽 (turn on/off the bletooth)
 
-3.調亮/調暗銀幕亮度
+3.調亮/調暗銀幕亮度 (brighten/darken the screen)
 
-4.調大/調小音量
+4.調大/調小音量 (volume up/down)
 
-5.打開相機
+5.打開相機 (open the camera)
 
-6.關機
+6.關機 (turn off the device)
 
-7.簡單自我介紹
+7.簡單自我介紹 (introduction)
 
 ## Language
 This virtual assistant can only understand chinese, but can be transformed into English or other languages if there are training data, our model is fixable for different languages.
