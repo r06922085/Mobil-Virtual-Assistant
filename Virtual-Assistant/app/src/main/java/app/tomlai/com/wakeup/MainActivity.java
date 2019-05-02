@@ -116,14 +116,14 @@ public class MainActivity extends Activity {
         new Task().execute();
     }
     protected  void do_command(){
-        if(ToDo.equals("打開wifi")) Wifi(1);
-        else if(ToDo.equals("關閉wifi")) Wifi(0);
-        else if(ToDo.equals("打開藍芽")) BT(1);
-        else if(ToDo.equals("關閉藍芽"))BT(0);
-        else if(ToDo.equals("調大銀幕")) Screen(1);
-        else if(ToDo.equals("調小銀幕")) Screen(0);
-        else if(ToDo.equals("調大音量")) Volumn(1);
-        else if(ToDo.equals("調小音量")) Volumn(0);
+        if(ToDo.contains("打開wifi")) Wifi(1);
+        if(ToDo.contains("關閉wifi")) Wifi(0);
+        if(ToDo.contains("打開藍芽")) BT(1);
+        if(ToDo.contains("關閉藍芽"))BT(0);
+        if(ToDo.contains("調大銀幕")) Screen(1);
+        if(ToDo.contains("調小銀幕")) Screen(0);
+        if(ToDo.contains("調大音量")) Volumn(1);
+        if(ToDo.contains("調小音量")) Volumn(0);
     }
     protected  void Wifi(int type){
         Log.d(TAG, "hi " + type);
@@ -235,7 +235,7 @@ public class MainActivity extends Activity {
             try
             {
                 // create the HttpURLConnection
-                url = new URL("http://140.112.31.89/line/main.php?Str="+Command);
+                url = new URL("http://140.112.31.89/virtual_assistant/main.php?Str="+Command);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
                 // 使用甚麼方法做連線
