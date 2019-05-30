@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         //set brightness
-        brightness = 2; // 设置亮度值为255
+        brightness = 200; // 设置亮度值为255
         Settings.System.putInt(contentResolver,
                 Settings.System.SCREEN_BRIGHTNESS, brightness);
 

@@ -34,6 +34,7 @@ public class MainActivity extends Activity {
     private TextView mText;//displaying the recognized words
     private String Command;
     private String ToDo;
+    private String ToAnswer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,14 +117,27 @@ public class MainActivity extends Activity {
         new Task().execute();
     }
     protected  void do_command(){
-        if(ToDo.contains("打開wifi")) Wifi(1);
-        if(ToDo.contains("關閉wifi")) Wifi(0);
-        if(ToDo.contains("打開藍芽")) BT(1);
-        if(ToDo.contains("關閉藍芽"))BT(0);
-        if(ToDo.contains("調大銀幕")) Screen(1);
-        if(ToDo.contains("調小銀幕")) Screen(0);
-        if(ToDo.contains("調大音量")) Volumn(1);
-        if(ToDo.contains("調小音量")) Volumn(0);
+        String[] command = {"打開wifi", "關閉wifi", "打開藍芽",
+                "關閉藍芽","調大銀幕", "調小銀幕", "調大音量", "調小音量", "關機", "打開相機", "none"};
+
+        for(int i=0;i<command.length;i++)
+            ToDo = ToDo.replaceAll(command[i], " "+i);
+        String[] ToDo_arr = ToDo.split(" ");
+
+
+        for(int i=1;i<ToDo_arr.length;i++){
+            Log.d(TAG, "ToDo_here:"+ToDo_arr[i]+";");
+            if(Integer.valueOf(ToDo_arr[i]) == 0) Wifi(1);
+            if(Integer.valueOf(ToDo_arr[i]) == 1) Wifi(0);
+            if(Integer.valueOf(ToDo_arr[i]) == 2) BT(1);
+            if(Integer.valueOf(ToDo_arr[i]) == 3) BT(0);
+            if(Integer.valueOf(ToDo_arr[i]) == 4) Screen(1);
+            if(Integer.valueOf(ToDo_arr[i]) == 5) Screen(0);
+            if(Integer.valueOf(ToDo_arr[i]) == 6) Volumn(1);
+            if(Integer.valueOf(ToDo_arr[i]) == 7) Volumn(0);
+
+        }
+
     }
     protected  void Wifi(int type){
         Log.d(TAG, "hi " + type);
@@ -133,10 +147,16 @@ public class MainActivity extends Activity {
             if (!wiFiManager.isWifiEnabled()) {
                 wiFiManager.setWifiEnabled(true);
             }
+            else{
+                ToAnswer = ToAnswer.replaceAll("打開wifi", ",wifi已經是打開的了");
+            }
         }
         else{
             if (wiFiManager.isWifiEnabled()) {
                 wiFiManager.setWifiEnabled(false);
+            }
+            else{
+                ToAnswer = ToAnswer.replaceAll("關閉wifi", ",wifi已經是關著的了");
             }
         }
     }
@@ -146,10 +166,16 @@ public class MainActivity extends Activity {
             if (!mBluetoothAdapter.isEnabled()) {
                 mBluetoothAdapter.enable();
             }
+            else{
+                ToAnswer = ToAnswer.replaceAll("打開藍芽", ",藍芽已經是打開的了");
+            }
         }
         else{
             if (mBluetoothAdapter.isEnabled()) {
                 mBluetoothAdapter.disable();
+            }
+            else{
+                ToAnswer = ToAnswer.replaceAll("關閉藍芽", ",藍芽已經是關上的了");
             }
         }
     }
@@ -162,17 +188,36 @@ public class MainActivity extends Activity {
             e.printStackTrace();
         }
 
-        if(type==1)System_Brightness = System_Brightness+40;
+        if(type==1)System_Brightness = System_Brightness + 40;
 
-        else System_Brightness = System_Brightness-40;
+        else System_Brightness = System_Brightness - 40;
 
+        //以下4行只需執行一次
+        //int REQUEST_CODE_WRITE_SETTINGS = 1;
+        //Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+        //intent.setData(Uri.parse("package:" + getPackageName()));
+        //startActivityForResult(intent, REQUEST_CODE_WRITE_SETTINGS );
+        if(System_Brightness<0){
+            System_Brightness = 0;
+            ToAnswer = ToAnswer.replaceAll("調暗銀幕", ",亮度已經是最暗的了,");
+        }
+        if(System_Brightness>255){
+            System_Brightness = 255;
+            ToAnswer = ToAnswer.replaceAll("調亮銀幕", ",亮度已經是最亮的了,");
+        }
 
-        Settings.System.putInt(contentResolver,
-                Settings.System.SCREEN_BRIGHTNESS, System_Brightness);
+        Settings.System.putInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS, System_Brightness);
     }
     protected  void Volumn(int type){
         AudioManager am=(AudioManager) getSystemService(Context.AUDIO_SERVICE);
         if(type==1){
+
+            if(am.getStreamVolume(AudioManager.STREAM_MUSIC)== am.getStreamMaxVolume(AudioManager.STREAM_MUSIC)){
+                ToAnswer = ToAnswer.replaceAll("調大音量", ",音量已經是最大的了,");
+            }
+            if(am.getStreamVolume(AudioManager.STREAM_MUSIC)== 0){
+                ToAnswer = ToAnswer.replaceAll("調小音量", ",音量已經是最小的了,");
+            }
             am.adjustStreamVolume (AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI);
             am.adjustStreamVolume (AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI);
             am.adjustStreamVolume (AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI);
@@ -287,10 +332,20 @@ public class MainActivity extends Activity {
         public void onPostExecute(String result) {
             super.onPostExecute(result);
             if(!"".equals(result) || null != result){
-                ToDo = result.replaceAll("\r|\n", "");;
+                String response = result.replaceAll("\r|\n", "");
+
+                String[] response_arr= response.split("-");
+                ToDo = response_arr[0];
+                ToAnswer = response_arr[1];
+
                 do_command();
-                mText.setText("已經"+ToDo);
-                tts.speak( "已經"+ToDo, TextToSpeech.QUEUE_FLUSH, null );
+
+                tts.setPitch(0.8f);
+                tts.setSpeechRate(0.9f);
+                tts.speak( ToAnswer, TextToSpeech.QUEUE_FLUSH, null );
+
+                mText.setText(ToAnswer);
+
             }
         }
     }
