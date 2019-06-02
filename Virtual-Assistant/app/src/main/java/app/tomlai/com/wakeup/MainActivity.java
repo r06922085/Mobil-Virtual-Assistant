@@ -82,8 +82,14 @@ public class MainActivity extends Activity {
         public void onError(int error)
         {
             Log.d(TAG,  "error " +  error);
-            mText.setText("error " + error);
-            startActivity(new Intent(MainActivity.this, ListeningActivity.class));
+            //mText.setText("error " + error);
+
+            Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+            intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,"voice.recognition.test");
+            intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,5);
+            sr.startListening(intent);
+            //startActivity(new Intent(MainActivity.this, ListeningActivity.class));
         }
         public void onResults(Bundle results)
         {
@@ -99,7 +105,13 @@ public class MainActivity extends Activity {
             //tts.speak( ""+data.get(0), TextToSpeech.QUEUE_FLUSH, null );
 
             Command = ""+data.get(0);
-            ToDo();
+
+            if(Command.contains("沒事")){
+                tts.speak( "那就好", TextToSpeech.QUEUE_FLUSH, null );
+            }
+            else{
+                ToDo();
+            }
 
             startActivity(new Intent(MainActivity.this, ListeningActivity.class));
 
@@ -117,8 +129,8 @@ public class MainActivity extends Activity {
         new Task().execute();
     }
     protected  void do_command(){
-        String[] command = {"打開wifi", "關閉wifi", "打開藍芽",
-                "關閉藍芽","調大銀幕", "調小銀幕", "調大音量", "調小音量", "關機", "打開相機", "none"};
+        String[] command = {"打開WiFi", "關閉WiFi", "打開藍芽",
+                "關閉藍芽","調大螢幕", "調小螢幕", "調大音量", "調小音量", "關機", "打開相機", "none"};
 
         for(int i=0;i<command.length;i++)
             ToDo = ToDo.replaceAll(command[i], " "+i);
@@ -148,7 +160,7 @@ public class MainActivity extends Activity {
                 wiFiManager.setWifiEnabled(true);
             }
             else{
-                ToAnswer = ToAnswer.replaceAll("打開wifi", ",wifi已經是打開的了");
+                ToAnswer = ToAnswer.replaceAll("打開wifi", ",wifi已經是打開的了,");
             }
         }
         else{
@@ -156,7 +168,7 @@ public class MainActivity extends Activity {
                 wiFiManager.setWifiEnabled(false);
             }
             else{
-                ToAnswer = ToAnswer.replaceAll("關閉wifi", ",wifi已經是關著的了");
+                ToAnswer = ToAnswer.replaceAll("關閉wifi", ",wifi已經是關著的了,");
             }
         }
     }
@@ -167,7 +179,7 @@ public class MainActivity extends Activity {
                 mBluetoothAdapter.enable();
             }
             else{
-                ToAnswer = ToAnswer.replaceAll("打開藍芽", ",藍芽已經是打開的了");
+                ToAnswer = ToAnswer.replaceAll("打開藍芽", ",藍芽已經是打開的了,");
             }
         }
         else{
@@ -175,7 +187,7 @@ public class MainActivity extends Activity {
                 mBluetoothAdapter.disable();
             }
             else{
-                ToAnswer = ToAnswer.replaceAll("關閉藍芽", ",藍芽已經是關上的了");
+                ToAnswer = ToAnswer.replaceAll("關閉藍芽", ",藍芽已經是關上的了,");
             }
         }
     }
@@ -251,6 +263,9 @@ public class MainActivity extends Activity {
                     {
                         // 指定的語系: 英文(美國)
                         Locale l = Locale.TRADITIONAL_CHINESE;  // 不要用 Locale.ENGLISH, 會預設用英文(印度)
+
+                        tts.setPitch(0.8f);
+                        tts.setSpeechRate(0.9f);
 
                         // 目前指定的【語系+國家】TTS, 已下載離線語音檔, 可以離線發音
                         if( tts.isLanguageAvailable( l ) == TextToSpeech.LANG_COUNTRY_AVAILABLE )
@@ -340,8 +355,6 @@ public class MainActivity extends Activity {
 
                 do_command();
 
-                tts.setPitch(0.8f);
-                tts.setSpeechRate(0.9f);
                 tts.speak( ToAnswer, TextToSpeech.QUEUE_FLUSH, null );
 
                 mText.setText(ToAnswer);
